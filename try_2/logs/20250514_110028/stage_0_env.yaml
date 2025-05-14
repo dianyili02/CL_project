@@ -1,0 +1,11 @@
+map:
+  dimensions:
+  - 6
+  - 6
+  obstacles:
+  - - 4
+    - 5
+  - - 4
+    - 1
+  - - 5
+    - 1

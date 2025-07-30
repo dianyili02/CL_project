@@ -1,14 +1,3 @@
-if done:
-    shaped_reward = 100.0
-    episode_success = True
-
-    # === 路径效率惩罚 ===
-    optimal_length = max(len(opt_path) - 1, 1)
-    agent_length = max(len(agent_path) - 1, 1)
-
-    # Detour 超出部分
-    if agent_length > optimal_length:
-        penalty = (agent_length - optimal_length) * 1.0  # 每多一步扣 1 分（可调）
-        shaped_reward -= penalty
-        print(f"🚨 Path Detour Penalty: -{penalty} (Agent: {agent_length}, Expert: {optimal_length})")
+if len(agent_path) >= 2 and pos == agent_path[-2]:
+    shaped_reward -= 1.0
 

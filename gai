@@ -1,3 +1,399 @@
-dist_curr = np.linalg.norm(np.array(pos) - np.array(goal))  # 当前距离目标的距离
-goal_reward = 1 / (dist_curr + 1e-6) * scale_factor
-shaped_reward += goal_reward
+Traceback (most recent call last):
+  File "c:/Users/MSc_SEIoT_1/MAPF_G2RL/train_curriculum.py", line 113, in <module>
+    run_curriculum_training()
+  File "c:/Users/MSc_SEIoT_1/MAPF_G2RL/train_curriculum.py", line 84, in run_curriculum_training
+    agent = train(
+  File "c:\Users\MSc_SEIoT_1\MAPF_G2RL\g2rl\train.py", line 237, in train
+    shaped_reward += goal_reward
+UnboundLocalError: local variable 'shaped_reward' referenced before assignment
+
+
+
+
+
+
+
+from pathlib import Path
+from datetime import datetime
+from tqdm import tqdm
+
+import numpy as np
+import torch
+from torch.utils.tensorboard import SummaryWriter
+from pogema import AStarAgent
+
+from g2rl import DDQNAgent, G2RLEnv, CRNNModel
+from g2rl import moving_cost, detour_percentage
+from curriculum import stage_train_configs
+
+from collections import Counter
+import os
+import torch.nn.functional as F
+
+
+os.makedirs("models", exist_ok=True)
+
+def print_map(env, obs, episode, target_idx=None):
+    obstacle_map = env.env.grid.get_obstacles()
+    height, width = obstacle_map.shape
+    grid = np.zeros((height, width), dtype=int)
+
+    obs_coords = np.argwhere(obstacle_map == 1)
+    for y, x in obs_coords:
+        grid[y, x] = 1
+
+    if target_idx is not None:
+        x, y = obs[target_idx]['global_xy']
+        if 0 <= y < height and 0 <= x < width:
+            grid[y, x] = 2
+        gx, gy = obs[target_idx]['global_target_xy']
+        if 0 <= gy < height and 0 <= gx < width:
+            if (gx, gy) != (x, y):
+                grid[gy, gx] = 3
+            else:
+                print(f"⚠️ Start == Goal at {(gx, gy)}")
+
+    print(f"[EP {episode}] 🗺️ Map view:")
+    for row in grid:
+        line = ''
+        for cell in row:
+            if cell == 0:
+                line += '⬜️'
+            elif cell == 1:
+                line += '🟥'
+            elif cell == 2:
+                line += '🟦'
+            elif cell == 3:
+                line += '🟩'
+        print(line)
+
+
+def compute_path_metrics(agent_path, optimal_path):
+    if not agent_path or len(agent_path) < 2:
+        return 0, 0.0
+    moving_cost = len(agent_path) - 1
+    optimal_cost = max(len(optimal_path) - 1, 1)
+    detour = (moving_cost - optimal_cost) / optimal_cost
+    return moving_cost, detour
+
+def get_timestamp() -> str:
+    now = datetime.now()
+    return now.strftime('%H-%M-%d-%m-%Y')
+
+# def get_direction(pos, goal):
+#     dx = goal[0] - pos[0]
+#     dy = goal[1] - pos[1]
+#     if abs(dx) > abs(dy):
+#         return 1 if dx > 0 else 0
+#     elif abs(dy) > 0:
+#         return 3 if dy > 0 else 2
+#     else:
+#         return 4
+def get_direction(pos, goal):
+    dx = goal[0] - pos[0]
+    dy = goal[1] - pos[1]
+
+    if dx > 0:
+        return 1  # Down
+    elif dx < 0:
+        return 0  # Up
+    elif dy > 0:
+        return 3  # Right
+    elif dy < 0:
+        return 2  # Left
+    else:
+        return 4  # Stay
+
+def train(
+    model,
+    map_settings,
+    map_probs,
+    num_episodes,
+    batch_size,
+    decay_range,
+    log_dir,
+    lr,
+    replay_buffer_size,
+    device= torch.device("cuda" if torch.cuda.is_available() else "cpu"),
+    initial_epsilon=1.0,
+    final_epsilon=0.05
+):
+    from collections import deque
+
+
+    success_window = deque(maxlen=20)  # 跟踪最近 20 个 episode 的结果（1 成功 / 0 失败）
+
+    writer = SummaryWriter(log_dir=log_dir)
+    expert_action_counter = Counter()
+    env = G2RLEnv(**map_settings)
+    expert_agents = [AStarAgent() for _ in range(env.num_agents)]
+    agent = DDQNAgent(
+        model=model,
+        action_space=env.get_action_space(),
+        lr=lr,
+        replay_buffer_size=replay_buffer_size,
+        device=device,
+        initial_epsilon=initial_epsilon,
+        final_epsilon=final_epsilon,
+        decay_range=decay_range
+    )
+
+    pretrain_steps = 50
+    for _ in range(pretrain_steps):
+        obs, _ = env.reset()
+        target_idx = np.random.randint(env.num_agents)
+        state = obs[target_idx]
+        expert_path = env.global_guidance[target_idx]
+        for i in range(min(5, len(expert_path) - 1)):
+            prev_pos = tuple(map(int, expert_path[i]))
+            next_pos = tuple(map(int, expert_path[i + 1]))
+            expert_action = get_direction(prev_pos, next_pos)
+            agent.pretrain(state, expert_action)
+
+    pbar = tqdm(range(num_episodes), desc="Episodes")
+    success_count = 0
+
+    for episode in pbar:
+        scalars = {
+            'Reward': 0.0,
+            'Moving Cost': 0.0,
+            'Detour Percentage': 0.0,
+            'Average Loss': 0.0,
+            'Average Epsilon': 0.0,
+            'Success': 0
+        }
+        retrain_count = 0
+
+        max_steps = env.grid_config.max_episode_steps
+        obs, _ = env.reset()
+
+        target_idx = np.random.randint(env.num_agents)
+        agents = [agent if i == target_idx else agent for i in range(env.num_agents)]
+
+        state = obs[target_idx]
+        agent_path = [tuple(map(int, state['global_xy']))]
+        opt_path = [state['global_xy']] + env.global_guidance[target_idx]
+        goal = tuple(map(int, state['global_target_xy']))
+        visited_positions = {}
+
+        for step in range(max_steps):
+            # print_map(env, obs, episode, target_idx)
+            prev_pos = tuple(map(int, state['global_xy']))
+            actions = [ag.act(ob) for ag, ob in zip(agents, obs)]
+            next_obs, reward, terminated, truncated, info = env.step(actions)
+            next_state = next_obs[target_idx]
+
+            # 生成 expert action
+            expert_path = env.global_guidance[target_idx]
+            if prev_pos in expert_path:
+                idx = expert_path.index(prev_pos)
+                next_pos = expert_path[idx + 1] if idx < len(expert_path) - 1 else goal
+            else:
+                next_pos = goal
+            expert_action = get_direction(prev_pos, next_pos)
+            expert_action_counter[expert_action] += 1
+
+            # print("expert action distribution:")
+            # for action, count in expert_action_counter.items():
+            #     print(f"Action {action} -> Count : {count}")
+           
+            # if episode == 0 and step == 0:
+                # print("🔥 DEBUG: view_cache shape =", state['view_cache'].shape)
+
+            agent_obs = state['view_cache']                                        # [T, H, W, C]
+            agent_obs = torch.tensor(agent_obs, dtype=torch.float32)              # [T, H, W, C]
+            state_tensor = agent_obs.unsqueeze(0).to(device)                      # [1, T, H, W, C]
+                 # [1, T, C, H, W]
+
+
+            # q_values = model(state_tensor)  # [1, num_actions]
+            # 尝试获取 q_values 并打印
+            try:
+                q_values = model(state_tensor)  # [1, num_actions]
+                # print("✅ q_values shape:", q_values.shape)
+            except Exception as e:
+                print("❌ model(state_tensor) 报错：", repr(e))
+                print("📏 当前 state_tensor shape:", state_tensor.shape)
+                exit(1)
+
+# ⚠️ 放在 try 成功之后再打印 shape
+            expert_tensor = torch.tensor([expert_action], dtype=torch.long).to(device)
+            # print("🚨 expert_tensor shape:", expert_tensor.shape)
+
+# imitation loss
+            imitation_loss = F.cross_entropy(q_values, expert_tensor)
+
+
+
+            obs = next_obs
+            state = next_state
+            pos = tuple(map(int, next_state['global_xy']))
+            done = pos == goal
+            episode_success = False
+
+        # === 更新路径轨迹 ===
+            if pos != agent_path[-1]:
+                agent_path.append(pos)
+            elif step == max_steps - 1 and pos == goal:
+                agent_path.append(pos)
+
+
+
+        # === 奖励设计 ===
+            dist_prev = np.linalg.norm(np.array(prev_pos) - np.array(goal))
+            dist_curr = np.linalg.norm(np.array(pos) - np.array(goal))
+            delta = dist_prev - dist_curr
+  
+            # shaped_reward = delta * 10.0
+
+            goal_reward = 1 / (dist_curr + 1e-6) * 2.0
+            shaped_reward += goal_reward
+
+            if done:
+                shaped_reward += 200.0
+                episode_success = True  # ✅ 标记成功
+
+                  # === 路径效率惩罚 ===
+                optimal_length = max(len(opt_path) - 1, 1)
+                agent_length = max(len(agent_path) - 1, 1)
+
+    # Detour 超出部分
+                if agent_length > optimal_length:
+                    penalty = (agent_length - optimal_length) * 1.0  # 每多一步扣 1 分（可调）
+                    shaped_reward -= penalty
+                    print(f"🚨 Path Detour Penalty: -{penalty} (Agent: {agent_length}, Expert: {optimal_length})")
+                if len(agent_path) >= 2 and pos == agent_path[-2]:
+                    shaped_reward -= 1.0
+            else:
+                if delta <= 0:
+                    shaped_reward -= 1.0
+
+
+            visited_positions[pos] = visited_positions.get(pos,0) +1
+            if visited_positions[pos] >1:
+                shaped_reward -= 0.5
+        # === stuck 惩罚机制 ===
+            if 'stuck_counter' not in locals():
+                stuck_counter = 0
+            if pos == prev_pos:
+                shaped_reward -= 0.5
+                stuck_counter += 1
+            else:
+                stuck_counter = 0
+            if stuck_counter >= 3:
+                shaped_reward -= 2.0
+
+        # === 奖励注入 ===
+            if isinstance(reward, (list, np.ndarray)):
+                reward[target_idx] = shaped_reward
+            else:
+                reward = [0.0] * env.num_agents
+                reward[target_idx] = shaped_reward
+
+        # === 存储 transition + expert 引导动作 ===
+            agent.store(state, actions[target_idx], reward[target_idx], next_state, done, expert_action)
+
+        # === 学习 ===
+            if len(success_window) == success_window.maxlen:
+                recent_success_rate = sum(success_window) / len(success_window)
+            else:
+                recent_success_rate = 0.0  # 初始化阶段
+
+            if len(agent.replay_buffer) >= batch_size:
+                retrain_count += 1
+                if len(success_window) == success_window.maxlen:
+                    recent_success_rate = sum(success_window) / len(success_window)
+                else:
+                    recent_success_rate = 0.0
+
+                # if recent_success_rate < 0.2:
+                #     imitation_weight = 5.0
+                # elif recent_success_rate < 0.5:
+                #     imitation_weight = 2.5
+                # else:
+                #     imitation_weight = 1.0
+
+                # if episode < 50:
+                #     imitation_weight = 10.0  # 强化专家路径引导
+                # elif recent_success_rate < 0.2:
+                #     imitation_weight = 5.0
+                # elif recent_success_rate < 0.5:
+                #     imitation_weight = 2.5
+                # else:
+                #     imitation_weight = 1.0
+                if recent_success_rate < 0.2:
+                    imitation_weight = 5.0
+                elif recent_success_rate < 0.6:
+                    imitation_weight = 2.5
+                else:
+                    imitation_weight = 1.0
+                
+
+
+
+
+                # loss = agent.retrain(batch_size)
+                # total_loss = loss + imitation_weight * imitation_loss.item()
+                # agent.optimizer.zero_grad()
+                # rl_loss = agent.retrain(batch_size, backward=False)  # 假设retrain可以只返回loss不反向传播
+                # total_loss = rl_loss + imitation_weight * imitation_loss
+                # total_loss.backward()
+                # agent.optimizer.step()
+
+                # 在 train() 中
+                agent.optimizer.zero_grad()
+                rl_loss = agent.retrain(batch_size, backward=False)
+
+# imitation loss
+                expert_tensor = torch.tensor([expert_action], dtype=torch.long).to(device)
+                imitation_loss = F.cross_entropy(q_values, expert_tensor)
+                # print(f"[EP{episode}STEP{step}] Expert action =  {expert_action} , Imitation_loss = {imitation_loss.item():.4f}")
+
+# 合并
+                total_loss = rl_loss + imitation_weight * imitation_loss
+                total_loss.backward()
+                agent.optimizer.step()
+
+
+                scalars['Average Loss'] += total_loss.item()
+                scalars['Average Epsilon'] += round(agent.epsilon, 4)
+
+
+
+
+        # === 终止条件 ===
+            fog_cleared = (next_state['view_cache'][-1][:, :, -1] == 0).all()
+            episode_ends = done or fog_cleared or step == max_steps - 1
+
+            if episode_ends:
+                scalars["Success"] = 1 if episode_success else 0
+                mc, detour = compute_path_metrics(agent_path, opt_path)
+                scalars['Moving Cost'] = mc
+                scalars['Detour Percentage'] = detour
+                scalars['Reward'] = reward[target_idx]
+                success_window.append(scalars["Success"])  # 0 或 1
+
+                success = int(done)  # 或 scalars["Success"]
+                success_window.append(success)
+
+                recent_success_rate = sum(success_window) / len(success_window)
+                print(f"📈 Recent Success Rate (last {len(success_window)} episodes): {recent_success_rate:.2f}")
+
+                if done:
+                    print(f"[EP {episode} STEP {step}] ✅ Reached goal. Path len={len(agent_path)}, Cost={mc}, Detour={detour:.2f}")
+                else:
+                    print(f"[EP {episode} STEP {step}] ❌ Did not reach goal.")
+                break
+
+
+        for name in scalars.keys():
+            if 'Average' in name and retrain_count > 0:
+                scalars[name] /= retrain_count
+
+        for name, value in scalars.items():
+            writer.add_scalar(name, value, episode)
+        pbar.update(1)
+        pbar.set_postfix(scalars)
+
+    writer.close()
+    return agent

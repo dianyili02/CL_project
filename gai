@@ -1,14 +1,4 @@
-def get_direction(pos, goal):
-    dx = goal[0] - pos[0]
-    dy = goal[1] - pos[1]
+dist_prev = abs(prev_pos[0] - goal[0]) + abs(prev_pos[1] - goal[1])
+dist_curr = abs(pos[0] - goal[0]) + abs(pos[1] - goal[1])
+delta = dist_prev - dist_curr
 
-    if dx > 0:
-        return 1  # Down
-    elif dx < 0:
-        return 0  # Up
-    elif dy > 0:
-        return 3  # Right
-    elif dy < 0:
-        return 2  # Left
-    else:
-        return 4  # Stay

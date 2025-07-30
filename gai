@@ -1,0 +1,299 @@
+Action 3 -> Count : 91
+Action 2 -> Count : 63
+[EP11STEP47] Expert action =  3 , Imitation_loss = 1.4835
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 92
+Action 2 -> Count : 63
+[EP11STEP48] Expert action =  3 , Imitation_loss = 0.5466
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 93
+Action 2 -> Count : 63
+[EP11STEP49] Expert action =  3 , Imitation_loss = 0.3004
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 94
+Action 2 -> Count : 63
+[EP11STEP50] Expert action =  3 , Imitation_loss = 0.8171
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 95
+Action 2 -> Count : 63
+[EP11STEP51] Expert action =  3 , Imitation_loss = 0.4643
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 96
+Action 2 -> Count : 63
+[EP11STEP52] Expert action =  3 , Imitation_loss = 0.4973
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 97
+Action 2 -> Count : 63
+[EP11STEP53] Expert action =  3 , Imitation_loss = 1.1508
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 97
+Action 2 -> Count : 63
+Action 1 -> Count : 1
+[EP11STEP54] Expert action =  1 , Imitation_loss = 1.3229
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 97
+Action 2 -> Count : 63
+Action 1 -> Count : 2
+[EP11STEP55] Expert action =  1 , Imitation_loss = 1.1439
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 97
+Action 2 -> Count : 63
+Action 1 -> Count : 3
+[EP11STEP56] Expert action =  1 , Imitation_loss = 1.7222
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 97
+Action 2 -> Count : 63
+Action 1 -> Count : 4
+[EP11STEP57] Expert action =  1 , Imitation_loss = 3.3717
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 97
+Action 2 -> Count : 63
+Action 1 -> Count : 5
+[EP11STEP58] Expert action =  1 , Imitation_loss = 1.5357
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 97
+Action 2 -> Count : 63
+Action 1 -> Count : 6
+[EP11STEP59] Expert action =  1 , Imitation_loss = 0.6115
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 97
+Action 2 -> Count : 63
+Action 1 -> Count : 7
+[EP11STEP60] Expert action =  1 , Imitation_loss = 0.5723
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 97
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP11STEP61] Expert action =  1 , Imitation_loss = 0.7553
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 98
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP11STEP62] Expert action =  3 , Imitation_loss = 0.7905
+expert action distribution:
+Action 0 -> Count : 587
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP11STEP63] Expert action =  3 , Imitation_loss = 0.5904
+📈 Recent Success Rate (last 20 episodes): 0.00
+[EP 11 STEP 63] ❌ Did not reach goal.
+Episodes:   6%|███████████████▏                                                                                                                                                                                                                                                             | 17/300 [00:18<05:05,  1.08s/it, Reward=-2, Moving Cost=34, Detour Percentage=3.86, Average Loss=38.1, Average Epsilon=1, Success=0]expert action distribution:
+Action 0 -> Count : 588
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP0] Expert action =  0 , Imitation_loss = 3.7288
+expert action distribution:
+Action 0 -> Count : 589
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP1] Expert action =  0 , Imitation_loss = 3.0092
+expert action distribution:
+Action 0 -> Count : 590
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP2] Expert action =  0 , Imitation_loss = 3.0456
+expert action distribution:
+Action 0 -> Count : 591
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP3] Expert action =  0 , Imitation_loss = 4.1493
+expert action distribution:
+Action 0 -> Count : 592
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP4] Expert action =  0 , Imitation_loss = 4.3114
+expert action distribution:
+Action 0 -> Count : 593
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP5] Expert action =  0 , Imitation_loss = 2.2710
+expert action distribution:
+Action 0 -> Count : 594
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP6] Expert action =  0 , Imitation_loss = 3.1923
+expert action distribution:
+Action 0 -> Count : 595
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP7] Expert action =  0 , Imitation_loss = 2.6552
+expert action distribution:
+Action 0 -> Count : 596
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP8] Expert action =  0 , Imitation_loss = 3.8732
+expert action distribution:
+Action 0 -> Count : 597
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP9] Expert action =  0 , Imitation_loss = 3.6732
+expert action distribution:
+Action 0 -> Count : 598
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP10] Expert action =  0 , Imitation_loss = 3.0292
+expert action distribution:
+Action 0 -> Count : 599
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP11] Expert action =  0 , Imitation_loss = 3.4350
+expert action distribution:
+Action 0 -> Count : 600
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP12] Expert action =  0 , Imitation_loss = 2.9314
+expert action distribution:
+Action 0 -> Count : 601
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP13] Expert action =  0 , Imitation_loss = 2.9447
+expert action distribution:
+Action 0 -> Count : 602
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP14] Expert action =  0 , Imitation_loss = 3.1660
+expert action distribution:
+Action 0 -> Count : 603
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP15] Expert action =  0 , Imitation_loss = 2.3343
+expert action distribution:
+Action 0 -> Count : 604
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP16] Expert action =  0 , Imitation_loss = 2.6931
+expert action distribution:
+Action 0 -> Count : 605
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP17] Expert action =  0 , Imitation_loss = 2.2207
+expert action distribution:
+Action 0 -> Count : 606
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP18] Expert action =  0 , Imitation_loss = 2.6398
+expert action distribution:
+Action 0 -> Count : 607
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP19] Expert action =  0 , Imitation_loss = 2.2948
+expert action distribution:
+Action 0 -> Count : 608
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP20] Expert action =  0 , Imitation_loss = 1.8748
+expert action distribution:
+Action 0 -> Count : 609
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP21] Expert action =  0 , Imitation_loss = 2.1416
+expert action distribution:
+Action 0 -> Count : 610
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP22] Expert action =  0 , Imitation_loss = 1.6084
+expert action distribution:
+Action 0 -> Count : 611
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP23] Expert action =  0 , Imitation_loss = 1.6664
+expert action distribution:
+Action 0 -> Count : 612
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP24] Expert action =  0 , Imitation_loss = 2.0091
+expert action distribution:
+Action 0 -> Count : 613
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP25] Expert action =  0 , Imitation_loss = 1.7907
+expert action distribution:
+Action 0 -> Count : 614
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP26] Expert action =  0 , Imitation_loss = 1.2727
+expert action distribution:
+Action 0 -> Count : 615
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP27] Expert action =  0 , Imitation_loss = 1.9151
+expert action distribution:
+Action 0 -> Count : 616
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP28] Expert action =  0 , Imitation_loss = 1.6577
+expert action distribution:
+Action 0 -> Count : 617
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP29] Expert action =  0 , Imitation_loss = 1.5806
+expert action distribution:
+Action 0 -> Count : 618
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP30] Expert action =  0 , Imitation_loss = 1.0216
+expert action distribution:
+Action 0 -> Count : 619
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP31] Expert action =  0 , Imitation_loss = 1.7802
+expert action distribution:
+Action 0 -> Count : 620
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+[EP12STEP32] Expert action =  0 , Imitation_loss = 1.2611
+expert action distribution:
+Action 0 -> Count : 621
+Action 3 -> Count : 99
+Action 2 -> Count : 63
+Action 1 -> Count : 8
+Episodes:   4%|██████████▊     

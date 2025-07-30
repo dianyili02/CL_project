@@ -1,2 +1,8 @@
-goal_reward = 1 / (dist_curr + 1e-6) * 2.0
-shaped_reward = delta * 5.0 + goal_reward  # ✅ 初始化并加上靠近奖励
+# === 偏离专家路径惩罚 ===
+if expert_path:
+    expert_set = set(map(tuple, expert_path))
+    if pos not in expert_set:
+        shaped_reward -= 1.0  # ❌ 偏离专家路径，惩罚
+    else:
+        shaped_reward += 0.5  # ✅ 走在专家路径上，微奖励（可选）
+
